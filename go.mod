@@ -23,14 +23,11 @@ require (
 	k8s.io/apimachinery v0.26.0
 	k8s.io/client-go v0.26.0
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
-	sigs.k8s.io/controller-runtime v0.13.1
+	sigs.k8s.io/controller-runtime v0.14.0
 	sigs.k8s.io/controller-tools v0.11.1
 	sigs.k8s.io/kustomize/kustomize/v3 v3.10.0
 	sigs.k8s.io/yaml v1.3.0
 )
-
-// Until controller-runtime releases with v0.26 support
-replace sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.13.1-0.20221213002533-ca4b4def4fb3
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
