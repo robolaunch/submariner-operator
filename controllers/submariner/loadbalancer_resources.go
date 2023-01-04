@@ -24,17 +24,16 @@ import (
 	"github.com/submariner-io/submariner-operator/controllers/apply"
 	"github.com/submariner-io/submariner-operator/pkg/names"
 	submv1 "github.com/submariner-io/submariner/pkg/apis/submariner.io/v1"
-	"github.com/submariner-io/submariner/pkg/port"
 	corev1 "k8s.io/api/core/v1"
 	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 const (
-	loadBalancerName      = "submariner-gateway"
-	gatewayStatusLabel    = "gateway.submariner.io/status"
-	encapsPortName        = "cable-encaps"
-	nattDiscoveryPortName = "natt-discovery"
+	loadBalancerName             = "submariner-gateway"
+	gatewayStatusLabel           = "gateway.submariner.io/status"
+	encapsPortName               = "cable-encaps"
+	nattDiscoveryDynamicPortName = "natt-discovery"
 )
 
 //nolint:wrapcheck // No need to wrap errors here.
@@ -70,9 +69,9 @@ func newLoadBalancerService(instance *v1alpha1.Submariner) *corev1.Service {
 					Protocol:   corev1.ProtocolUDP,
 				},
 				{
-					Name:       nattDiscoveryPortName,
-					Port:       int32(port.NATTDiscovery),
-					TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: int32(port.NATTDiscovery)},
+					Name:       nattDiscoveryDynamicPortName,
+					Port:       int32(instance.Spec.CeNatDiscovery),
+					TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: int32(instance.Spec.CeNatDiscovery)},
 					Protocol:   corev1.ProtocolUDP,
 				},
 			},

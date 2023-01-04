@@ -32,7 +32,6 @@ import (
 	"github.com/submariner-io/submariner-operator/pkg/images"
 	"github.com/submariner-io/submariner-operator/pkg/names"
 	submarinerv1 "github.com/submariner-io/submariner/pkg/apis/submariner.io/v1"
-	"github.com/submariner-io/submariner/pkg/port"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -129,6 +128,9 @@ func newGatewayPodTemplate(cr *v1alpha1.Submariner, name string, podSelectorLabe
 		})
 	}
 
+	nodeSelector := cr.Labels
+	nodeSelector["submariner.io/gateway-"+strconv.Itoa(cr.Spec.CeNatDiscovery)] = strconv.Itoa(cr.Spec.CeNatDiscovery)
+
 	podTemplate := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Labels: podSelectorLabels,
@@ -144,7 +146,7 @@ func newGatewayPodTemplate(cr *v1alpha1.Submariner, name string, podSelectorLabe
 					}},
 				},
 			},
-			NodeSelector: map[string]string{"submariner.io/gateway": "true"},
+			NodeSelector: nodeSelector,
 			Containers: []corev1.Container{
 				{
 					Name:            name,
@@ -171,9 +173,9 @@ func newGatewayPodTemplate(cr *v1alpha1.Submariner, name string, podSelectorLabe
 							Protocol:      corev1.ProtocolUDP,
 						},
 						{
-							Name:          nattDiscoveryPortName,
-							HostPort:      int32(port.NATTDiscovery),
-							ContainerPort: int32(port.NATTDiscovery),
+							Name:          nattDiscoveryDynamicPortName,
+							HostPort:      int32(cr.Spec.CeNatDiscovery),
+							ContainerPort: int32(cr.Spec.CeNatDiscovery),
 							Protocol:      corev1.ProtocolUDP,
 						},
 					},
@@ -230,6 +232,11 @@ func newGatewayPodTemplate(cr *v1alpha1.Submariner, name string, podSelectorLabe
 	if cr.Spec.CeIPSecNATTPort != 0 {
 		podTemplate.Spec.Containers[0].Env = append(podTemplate.Spec.Containers[0].Env,
 			corev1.EnvVar{Name: "CE_IPSEC_NATTPORT", Value: strconv.Itoa(cr.Spec.CeIPSecNATTPort)})
+	}
+
+	if cr.Spec.CeNatDiscovery != 0 {
+		podTemplate.Spec.Containers[0].Env = append(podTemplate.Spec.Containers[0].Env,
+			corev1.EnvVar{Name: "CE_NAT_DISCOVERY", Value: strconv.Itoa(cr.Spec.CeNatDiscovery)})
 	}
 
 	podTemplate.Spec.Containers[0].Env = append(podTemplate.Spec.Containers[0].Env,
