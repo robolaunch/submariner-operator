@@ -37,7 +37,7 @@ func (r *Reconciler) serviceDiscoveryReconciler(ctx context.Context, submariner 
 	//nolint:wrapcheck // No need to wrap errors here
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		if isEnabled {
-			sd := newServiceDiscoveryCR(submariner.Namespace)
+			sd := newServiceDiscoveryCR(submariner.Namespace, submariner)
 			result, err := controllerutil.CreateOrUpdate(ctx, r.config.ScopedClient, sd, func() error {
 				sd.Spec = v1alpha1.ServiceDiscoverySpec{
 					Version:                  submariner.Spec.Version,
@@ -74,7 +74,7 @@ func (r *Reconciler) serviceDiscoveryReconciler(ctx context.Context, submariner 
 			return nil
 		}
 
-		sdExisting := newServiceDiscoveryCR(submariner.Namespace)
+		sdExisting := newServiceDiscoveryCR(submariner.Namespace, submariner)
 		err := r.config.ScopedClient.Delete(ctx, sdExisting)
 		if apierrors.IsNotFound(err) {
 			return nil
@@ -88,11 +88,12 @@ func (r *Reconciler) serviceDiscoveryReconciler(ctx context.Context, submariner 
 	return errors.Wrapf(err, "error reconciling the Service Discovery CR")
 }
 
-func newServiceDiscoveryCR(namespace string) *v1alpha1.ServiceDiscovery {
+func newServiceDiscoveryCR(namespace string, submariner *v1alpha1.Submariner) *v1alpha1.ServiceDiscovery {
 	return &v1alpha1.ServiceDiscovery{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      names.ServiceDiscoveryCrName,
+			Labels:    submariner.Labels,
 		},
 	}
 }

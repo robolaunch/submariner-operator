@@ -49,6 +49,8 @@ func newRouteAgentDaemonSet(cr *v1alpha1.Submariner, name string) *appsv1.Daemon
 
 	maxUnavailable := intstr.FromString("100%")
 
+	nodeSelector := cr.Labels
+
 	return &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: cr.Namespace,
@@ -124,7 +126,8 @@ func newRouteAgentDaemonSet(cr *v1alpha1.Submariner, name string) *appsv1.Daemon
 					HostNetwork:        true,
 					DNSPolicy:          corev1.DNSClusterFirstWithHostNet,
 					// The route agent engine on all nodes, regardless of existing taints
-					Tolerations: []corev1.Toleration{{Operator: corev1.TolerationOpExists}},
+					Tolerations:  []corev1.Toleration{{Operator: corev1.TolerationOpExists}},
+					NodeSelector: nodeSelector,
 				},
 			},
 		},

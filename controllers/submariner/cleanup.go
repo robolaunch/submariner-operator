@@ -112,7 +112,7 @@ func (r *Reconciler) removeFinalizer(ctx context.Context, instance *operatorv1al
 }
 
 func (r *Reconciler) ensureServiceDiscoveryDeleted(ctx context.Context, namespace string) bool {
-	err := r.config.ScopedClient.Delete(ctx, newServiceDiscoveryCR(namespace))
+	err := r.config.ScopedClient.Delete(ctx, newServiceDiscoveryCR(namespace, &operatorv1alpha1.Submariner{}))
 	if apierrors.IsNotFound(err) {
 		return false
 	}

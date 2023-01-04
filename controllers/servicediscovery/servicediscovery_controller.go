@@ -209,6 +209,8 @@ func newLighthouseAgent(cr *submarinerv1alpha1.ServiceDiscovery, name string) *a
 	volumeMounts := []corev1.VolumeMount{}
 	volumes := []corev1.Volume{}
 
+	nodeSelector := cr.Labels
+
 	if cr.Spec.BrokerK8sSecret != "" {
 		// We've got a secret, mount it where the syncer expects it
 		volumeMounts = append(volumeMounts, corev1.VolumeMount{
@@ -260,10 +262,10 @@ func newLighthouseAgent(cr *submarinerv1alpha1.ServiceDiscovery, name string) *a
 							VolumeMounts: volumeMounts,
 						},
 					},
-
 					ServiceAccountName:            "submariner-lighthouse-agent",
 					TerminationGracePeriodSeconds: &terminationGracePeriodSeconds,
 					Volumes:                       volumes,
+					NodeSelector:                  nodeSelector,
 				},
 			},
 		},
@@ -324,6 +326,8 @@ func newLighthouseCoreDNSDeployment(cr *submarinerv1alpha1.ServiceDiscovery) *ap
 	allowPrivilegeEscalation := false
 	readOnlyRootFilesystem := true
 
+	nodeSelector := cr.Labels
+
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: cr.Namespace,
@@ -365,7 +369,6 @@ func newLighthouseCoreDNSDeployment(cr *submarinerv1alpha1.ServiceDiscovery) *ap
 							},
 						},
 					},
-
 					ServiceAccountName:            "submariner-lighthouse-coredns",
 					TerminationGracePeriodSeconds: &terminationGracePeriodSeconds,
 					Volumes: []corev1.Volume{
@@ -377,6 +380,7 @@ func newLighthouseCoreDNSDeployment(cr *submarinerv1alpha1.ServiceDiscovery) *ap
 							DefaultMode: &defaultMode,
 						}}},
 					},
+					NodeSelector: nodeSelector,
 				},
 			},
 		},
