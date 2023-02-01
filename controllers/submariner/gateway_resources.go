@@ -129,7 +129,7 @@ func newGatewayPodTemplate(cr *v1alpha1.Submariner, name string, podSelectorLabe
 	}
 
 	nodeSelector := cr.Labels
-	nodeSelector["submariner.io/gateway-"+strconv.Itoa(cr.Spec.CeNatDiscovery)] = strconv.Itoa(cr.Spec.CeNatDiscovery)
+	nodeSelector["submariner.io/gateway"] = strconv.Itoa(cr.Spec.CeNatDiscovery)
 
 	podTemplate := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
